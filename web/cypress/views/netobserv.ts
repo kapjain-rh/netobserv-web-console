@@ -20,6 +20,7 @@ type FlowCollectorParameter =
     | 'UDNMapping'
     | 'TLSTracking'
     | 'LokiDisabled'
+    | 'LokiWithoutStack'
     | 'Conversations'
     | 'ZonesAndMultiCluster'
     | 'BytesMetrics'
@@ -50,6 +51,7 @@ const FIXTURE_PATHS = {
     udnMapping: './cypress/fixtures/flowcollector/fc_UDN.yaml',
     tlsTracking: './cypress/fixtures/flowcollector/fc_TLSTracking.yaml',
     lokiDisabled: './cypress/fixtures/flowcollector/fc_lokiDisabled.yaml',
+    lokiWithoutStack: './cypress/fixtures/flowcollector/fc_lokiWithoutStack.yaml',
     conversations: './cypress/fixtures/flowcollector/fc_conversations.yaml',
     subnetLabels: './cypress/fixtures/flowcollector/fc_subnetLabel.yaml',
     zonesMultiCluster: './cypress/fixtures/flowcollector/fc_zoneMulticluster.yaml',
@@ -167,6 +169,9 @@ export const Operator = {
                         break;
                     case "LokiDisabled":
                         cy.deployFlowcollectorFromFixture(FIXTURE_PATHS.lokiDisabled)
+                        break;
+                    case "LokiWithoutStack":
+                        cy.deployFlowcollectorFromFixture(FIXTURE_PATHS.lokiWithoutStack)
                         break;
                     case "Conversations":
                         cy.deployFlowcollectorFromFixture(FIXTURE_PATHS.conversations)
