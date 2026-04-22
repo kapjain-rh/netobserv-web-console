@@ -1,4 +1,3 @@
-import { pluginSelectors } from "@views/netflow-page"
 import { Operator } from "@views/netobserv"
 import { flowcollectorStatusPage, flowcollectorStatusSelectors } from "@views/flowcollector-status"
 import { searchPage } from "@views/search"
@@ -23,9 +22,10 @@ describe('Network_Observability FlowCollector status and status indicator tests'
 
         // Verify status page title with status icon and tooltip on hover
         cy.contains('Network Observability FlowCollector status').should('exist')
-        cy.get('button[aria-label="FlowCollector status"]').should('exist')
-        cy.get('button[aria-label="FlowCollector status"] span').first().trigger('mouseenter', { force: true })
-        cy.get('.pf-v5-c-tooltip__content', { timeout: 10000 }).should('contain.text', 'FlowCollector is ready')
+        cy.get(flowcollectorStatusSelectors.statusButton).should('exist')
+            .find('span span').trigger('mouseenter', { force: true })
+        cy.get(flowcollectorStatusSelectors.statusTooltip, { timeout: 10000 })
+            .should('contain.text', 'FlowCollector is ready')
 
         // Verify component statuses table headers
         cy.contains('Component statuses').should('exist')
@@ -42,16 +42,14 @@ describe('Network_Observability FlowCollector status and status indicator tests'
         cy.contains('Monitoring').should('exist')
 
         // Verify "Open Network Traffic page" button is enabled when FC is ready
-        cy.get(pluginSelectors.openNetworkTraffic).should('exist')
+        cy.byLegacyTestID('open-network-traffic').should('exist')
             .should('not.have.attr', 'aria-disabled', 'true')
 
         // Verify demoloki install warning alert at top of status page
         cy.get(flowcollectorStatusSelectors.configIssueRow).should('exist')
             .should('have.attr', 'data-test-status', 'True')
             .should('have.attr', 'data-test-reason', 'Warnings')
-        cy.get(flowcollectorStatusSelectors.configWarningAlert).should('exist')
-            .find('.pf-v5-c-alert__title')
-            .should('contain.text', 'Configuration warnings')
+        cy.contains('Configuration warnings').should('exist')
 
         // Verify Conditions
         cy.contains('Conditions').should('exist')
@@ -66,10 +64,9 @@ describe('Network_Observability FlowCollector status and status indicator tests'
         cy.visit('/netflow-traffic')
         cy.get('#overview-container', { timeout: 60000 }).should('exist')
         cy.get(flowcollectorStatusSelectors.statusIndicator).should('exist')
-
-        // Verify tooltip on hover - mouseenter triggers Floating UI tooltip
-        cy.get(flowcollectorStatusSelectors.statusIndicator + ' span').first().trigger('mouseenter', { force: true })
-        cy.get('.pf-v5-c-tooltip__content', { timeout: 10000 }).should('contain.text', 'FlowCollector is ready')
+            .find('span span').trigger('mouseenter', { force: true })
+        cy.get(flowcollectorStatusSelectors.statusTooltip, { timeout: 10000 })
+            .should('contain.text', 'FlowCollector is ready')
 
         cy.get(flowcollectorStatusSelectors.statusIndicator).click()
         cy.contains('Network Observability FlowCollector status', { timeout: 30000 }).should('exist')
@@ -79,10 +76,9 @@ describe('Network_Observability FlowCollector status and status indicator tests'
         cy.visit('/network-health')
         cy.get('#content-scrollable', { timeout: 30000 }).should('exist')
         cy.get(flowcollectorStatusSelectors.statusIndicator).should('exist')
-
-        // Verify tooltip on hover - mouseenter triggers Floating UI tooltip
-        cy.get(flowcollectorStatusSelectors.statusIndicator + ' span').first().trigger('mouseenter', { force: true })
-        cy.get('.pf-v5-c-tooltip__content', { timeout: 10000 }).should('contain.text', 'FlowCollector is ready')
+            .find('span span').trigger('mouseenter', { force: true })
+        cy.get(flowcollectorStatusSelectors.statusTooltip, { timeout: 10000 })
+            .should('contain.text', 'FlowCollector is ready')
 
         cy.get(flowcollectorStatusSelectors.statusIndicator).click()
         cy.contains('Network Observability FlowCollector status', { timeout: 30000 }).should('exist')
@@ -92,20 +88,20 @@ describe('Network_Observability FlowCollector status and status indicator tests'
         // Search for FlowCollector via search page
         searchPage.navToSearchPage()
         searchPage.chooseResourceType('FlowCollector')
-        cy.get('table[data-test="data-view-table"]', { timeout: 30000 }).should('exist')
-        cy.get('[data-test="data-view-cell-cluster-name"]').should('exist')
+        cy.byTestID('data-view-table', { timeout: 30000 }).should('exist')
+        cy.byTestID('data-view-cell-cluster-name').should('exist')
 
         // Verify additionalPrinterColumn headers
-        cy.get('[data-test="additional-printer-column-header-Agent"]').should('exist')
-        cy.get('[data-test="additional-printer-column-header-Processor"]').should('exist')
-        cy.get('[data-test="additional-printer-column-header-Plugin"]').should('exist')
-        cy.get('[data-test="additional-printer-column-header-Status"]').should('exist')
+        cy.byTestID('additional-printer-column-header-Agent').should('exist')
+        cy.byTestID('additional-printer-column-header-Processor').should('exist')
+        cy.byTestID('additional-printer-column-header-Plugin').should('exist')
+        cy.byTestID('additional-printer-column-header-Status').should('exist')
 
         // Verify status column shows Ready
-        cy.get('[data-test="additional-printer-column-data-Status"]').should('contain.text', 'Ready')
+        cy.byTestID('additional-printer-column-data-Status').should('contain.text', 'Ready')
     })
 
-    after("after all tests are done", function () {
+    after("all tests", function () {
         Operator.deleteFlowCollector()
         cy.adminCLI(`oc adm policy remove-cluster-role-from-user cluster-admin ${Cypress.env('LOGIN_USERNAME')}`)
     })
@@ -129,17 +125,46 @@ describe('Network_Observability FlowCollector status error scenario', { tags: ['
         cy.visit('k8s/cluster/flows.netobserv.io~v1beta2~FlowCollector/status')
         cy.get(flowcollectorStatusSelectors.readyRow, { timeout: 120000 }).should('exist')
             .should('have.attr', 'data-test-status', 'False')
+        cy.get(flowcollectorStatusSelectors.readyRow)
+            .should('have.attr', 'data-test-reason')
+            .and('not.equal', 'Pending')
+            .and('not.equal', 'Valid')
+
+        // Verify WaitingFLPMonolith condition shows error about loki-gateway-ca-bundle
+        cy.get(flowcollectorStatusSelectors.flpMonolithRow).should('exist')
+            .should('have.attr', 'data-test-status', 'True')
+        cy.get(flowcollectorStatusSelectors.flpMonolithRow).parent()
+            .should('contain.text', 'loki-gateway-ca-bundle')
+
+        // Verify Flowlogs Pipeline component shows error about loki-gateway-ca-bundle
+        cy.contains('td', 'Flowlogs Pipeline').parent('tr')
+            .should('contain.text', 'loki-gateway-ca-bundle')
+
+        // Verify WaitingLokiStack condition shows LokiStack not found error
+        cy.get(flowcollectorStatusSelectors.lokiStackRow).should('exist')
+            .should('have.attr', 'data-test-status', 'True')
+            .and('have.attr', 'data-test-reason', 'CantFetchLokiStack')
+        cy.get(flowcollectorStatusSelectors.lokiStackRow)
+            .should('contain.text', 'LokiStack.loki.grafana.com')
+            .and('contain.text', 'not found')
+
+        // Verify WaitingFLPParent condition shows FLP error
+        cy.get(flowcollectorStatusSelectors.flpParentRow).should('exist')
+            .should('have.attr', 'data-test-status', 'True')
+            .and('have.attr', 'data-test-reason', 'FLPError')
 
         // Verify status icon tooltip shows error
-        cy.get('button[aria-label="FlowCollector status"] span').first().trigger('mouseenter', { force: true })
-        cy.get('.pf-v5-c-tooltip__content', { timeout: 10000 }).should('contain.text', 'FlowCollector has errors')
+        cy.get(flowcollectorStatusSelectors.statusButton)
+            .find('span span').trigger('mouseenter', { force: true })
+        cy.get(flowcollectorStatusSelectors.statusTooltip, { timeout: 10000 })
+            .should('contain.text', 'FlowCollector has errors')
 
         // Verify "Open Network Traffic page" button is disabled
-        cy.get(pluginSelectors.openNetworkTraffic).should('exist')
+        cy.byLegacyTestID('open-network-traffic').should('exist')
             .should('have.attr', 'aria-disabled', 'true')
     })
 
-    after("cleanup", function () {
+    after("all tests", function () {
         Operator.deleteFlowCollector()
         cy.adminCLI(`oc adm policy remove-cluster-role-from-user cluster-admin ${Cypress.env('LOGIN_USERNAME')}`)
     })
