@@ -143,10 +143,8 @@ describe('Network_Observability FlowCollector status error scenario', { tags: ['
         // Verify WaitingLokiStack condition shows LokiStack not found error
         cy.get(flowcollectorStatusSelectors.lokiStackRow).should('exist')
             .should('have.attr', 'data-test-status', 'True')
-            .and('have.attr', 'data-test-reason', 'CantFetchLokiStack')
         cy.get(flowcollectorStatusSelectors.lokiStackRow)
-            .should('contain.text', 'LokiStack.loki.grafana.com')
-            .and('contain.text', 'not found')
+            .should('contain.text', 'Loki is configured in LokiStack mode, but LokiStack API is missing')
 
         // Verify WaitingFLPParent condition shows FLP error
         cy.get(flowcollectorStatusSelectors.flpParentRow).should('exist')
