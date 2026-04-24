@@ -116,8 +116,7 @@ describe('Network_Observability FlowCollector status error scenario', { tags: ['
         Operator.install()
         cy.checkStorageClass(this)
 
-        // Deploy FlowCollector with Loki enabled pointing to a non-existent LokiStack
-        cy.deployFlowcollectorFromFixture('./cypress/fixtures/flowcollector/fc_lokiWithoutStack.yaml')
+        Operator.createFlowcollector("LokiWithoutLokiStack")
     })
 
     it("(OCP-88744, kapjain, Network_Observability) Verify error status when Loki enabled without LokiStack", function () {
