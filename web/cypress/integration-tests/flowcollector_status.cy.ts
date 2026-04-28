@@ -9,7 +9,6 @@ describe('Network_Observability FlowCollector status error scenario', { tags: ['
 
         Operator.install()
         cy.checkStorageClass(this)
-
         Operator.createFlowcollector("LokiWithoutLokiStack")
     })
 
@@ -46,7 +45,7 @@ describe('Network_Observability FlowCollector status error scenario', { tags: ['
 
         // Verify status icon tooltip shows error
         cy.get(flowcollectorStatusSelectors.statusButton)
-            .find('span span').trigger('mouseenter', { force: true })
+            .find('span').first().trigger('mouseenter', { force: true })
         cy.get(flowcollectorStatusSelectors.statusTooltip, { timeout: 10000 })
             .should('contain.text', 'FlowCollector has errors')
 

@@ -215,13 +215,13 @@ export const Operator = {
                 if (parameters !== "LokiWithoutLokiStack") {
                     Operator.visitFlowcollector()
                     cy.byTestID('status-text', { timeout: 120000 }).should('exist').should('contain.text', 'Ready')
-                }
 
-                // Check FlowCollector status and wait for plugin pod to be Ready
-                cy.contains('tr', 'cluster').within(() => {
-                    cy.byTestID('status-text', { timeout: 60000 }).should('contain.text', 'Ready')
-                })
-                cy.adminCLI(`oc wait --for=condition=Ready pod -l app=netobserv-plugin -n ${project} --timeout=180s`)
+                    // Check FlowCollector status and wait for plugin pod to be Ready
+                    cy.contains('tr', 'cluster').within(() => {
+                        cy.byTestID('status-text', { timeout: 60000 }).should('contain.text', 'Ready')
+                    })
+                    cy.adminCLI(`oc wait --for=condition=Ready pod -l app=netobserv-plugin -n ${project} --timeout=180s`)
+                }
             }
         })
     },

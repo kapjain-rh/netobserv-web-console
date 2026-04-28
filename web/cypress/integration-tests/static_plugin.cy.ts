@@ -16,10 +16,11 @@ describe('(OCP-84156 OCP-88744 Network_Observability) StaticPlugin test with Sta
     it("(OCP-84156, OCP-88744 aramesha) Edit flowcollector form view with Status Check", function () {
         // Edit flowcollector form view to update sampling to 1
         flowcollectorStatusPage.visit()
+
         // Verify status page title with status icon and tooltip on hover
         cy.contains('Network Observability FlowCollector status').should('exist')
         cy.get(flowcollectorStatusSelectors.statusButton).should('exist')
-            .find('span span').trigger('mouseenter', { force: true })
+            .find('span').first().trigger('mouseenter', { force: true })
         cy.get(flowcollectorStatusSelectors.statusTooltip, { timeout: 10000 })
             .should('contain.text', 'FlowCollector is ready')
 
@@ -54,48 +55,50 @@ describe('(OCP-84156 OCP-88744 Network_Observability) StaticPlugin test with Sta
         cy.get(flowcollectorStatusSelectors.agentReadyRow).should('exist')
         cy.get(flowcollectorStatusSelectors.pluginReadyRow).should('exist')
         cy.get(flowcollectorStatusSelectors.monitoringReadyRow).should('exist')
+
+        // Updating ebpf Sampling to 1
         cy.get(pluginSelectors.editFlowcollector).click()
         cy.get('#root_spec_agent_accordion-toggle').click()
         cy.get('#root_spec_agent_ebpf_sampling').clear().type('1')
         cy.get(pluginSelectors.update).click()
+
         // Wait for flowcollector to get ready
         cy.wait(20000)
-        cy.get(flowcollectorStatusSelectors.readyRow).should('exist')
+        cy.get(flowcollectorStatusSelectors.readyRow,{ timeout: 60000 }).should('exist')
             .should('have.attr', 'data-test-status', 'True')
             .should('have.attr', 'data-test-reason', 'Ready')
-
         cy.get(pluginSelectors.openNetworkTraffic).click()
+
         // Verify PacketDrop data is seen
         cy.get('li.overviewTabButton').trigger('click')
         netflowPage.clearAllFilters()
         netflowPage.setAutoRefresh()
         cy.checkPanel(overviewSelectors.defaultPacketDropPanels)
         cy.checkPanelsNum(6);
-
         cy.checkNetflowTraffic()
         netflowPage.resetClearFilters()
     })
 
         it("(OCP-88744, kapjain, Network_Observability) Verify status indicator on Network Health page", function () {
             cy.visit('/network-health')
+
             // cy.get('#content-scrollable', { timeout: 30000 }).should('exist')
             cy.get(flowcollectorStatusSelectors.statusIndicator).should('exist')
-                .find('span span').trigger('mouseenter', { force: true })
+                .find('span').first().trigger('mouseenter', { force: true })
             cy.get(flowcollectorStatusSelectors.statusTooltip, { timeout: 10000 })
                 .should('contain.text', 'FlowCollector is ready')
-
             cy.get(flowcollectorStatusSelectors.statusIndicator).click()
             cy.contains('Network Observability FlowCollector status', { timeout: 30000 }).should('exist')
         })
 
         it("(OCP-88744, kapjain, Network_Observability) Verify status indicator on Network Traffic page", function () {
             cy.visit('/netflow-traffic')
+
             // cy.get('#overview-container', { timeout: 60000 }).should('exist')
             cy.get(flowcollectorStatusSelectors.statusIndicator).should('exist')
-                .find('span span').trigger('mouseenter', { force: true })
+                .find('span').first().trigger('mouseenter', { force: true })
             cy.get(flowcollectorStatusSelectors.statusTooltip, { timeout: 10000 })
                 .should('contain.text', 'FlowCollector is ready')
-
             cy.get(flowcollectorStatusSelectors.statusIndicator).click()
             cy.contains('Network Observability FlowCollector status', { timeout: 30000 }).should('exist')
         })
