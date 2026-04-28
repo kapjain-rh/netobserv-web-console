@@ -9,7 +9,6 @@ describe('Network_Observability FlowCollector status error scenario', { tags: ['
 
         Operator.install()
         cy.checkStorageClass(this)
-
         Operator.createFlowcollector("LokiWithoutLokiStack")
     })
 
