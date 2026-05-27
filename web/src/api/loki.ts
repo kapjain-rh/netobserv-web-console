@@ -24,17 +24,17 @@ export interface StreamResult {
   values: string[][];
 }
 
-export class RecordsResult {
+export interface RecordsResult {
   records: Record[];
   stats: Stats;
 }
 
-export class FlowMetricsResult {
+export interface FlowMetricsResult {
   metrics: TopologyMetrics[];
   stats: Stats;
 }
 
-export class GenericMetricsResult {
+export interface GenericMetricsResult {
   metrics: GenericMetric[];
   stats: Stats;
 }
@@ -79,11 +79,19 @@ export interface TopologyMetricPeer {
   subnetLabel?: string;
 }
 
+/** TLS breakdown from Loki matrix metric labels (topology TLS aggregate: TLSVersion + TLSGroup). */
+export type GenericMetricTls = {
+  versions?: string[];
+  /** Cipher / key-exchange group (PQC compliance). */
+  groups?: string[];
+};
+
 export type GenericMetric = {
   name: string;
   values: [number, number][];
   stats: MetricStats;
   aggregateBy: Field;
+  tls?: GenericMetricTls;
 };
 
 export type FunctionMetrics = {
@@ -147,6 +155,11 @@ export type NetflowMetrics = {
   totalDnsLatency: Result<TotalFunctionMetrics, StructuredError | string>;
   totalDnsCount: Result<GenericMetric, StructuredError | string>;
   totalRtt: Result<TotalFunctionMetrics, StructuredError | string>;
+  tlsUsagePerVersion: Result<GenericMetric[], StructuredError | string>;
+  tlsUsagePerCipher: Result<GenericMetric[], StructuredError | string>;
+  tlsUsagePerGroup: Result<GenericMetric[], StructuredError | string>;
+  tlsFlowRate: Result<GenericMetric, StructuredError | string>;
+  totalFlowRate: Result<GenericMetric, StructuredError | string>;
   custom: Map<string, Result<TopologyMetrics[] | GenericMetric[], StructuredError | string>>;
   totalCustom: Map<string, Result<TopologyMetrics | GenericMetric, StructuredError | string>>;
 };
@@ -166,6 +179,11 @@ export const defaultNetflowMetrics: NetflowMetrics = {
   totalDnsLatency: Result.empty(),
   totalDnsCount: Result.empty(),
   totalRtt: Result.empty(),
+  tlsUsagePerCipher: Result.empty(),
+  tlsUsagePerGroup: Result.empty(),
+  tlsUsagePerVersion: Result.empty(),
+  tlsFlowRate: Result.empty(),
+  totalFlowRate: Result.empty(),
   custom: new Map(),
   totalCustom: new Map()
 };
@@ -188,6 +206,8 @@ export type TopologyMetrics = {
   values: [number, number][];
   stats: MetricStats;
   scope: FlowScope;
+  /** TLSVersion / TLSGroup from Loki topology matrix labels when present. */
+  tls?: GenericMetricTls;
 };
 
 export type NamedMetric = TopologyMetrics & {

@@ -244,6 +244,7 @@ export const NetflowTrafficDrawer = React.forwardRef<NetflowTrafficDrawerHandle,
                   metrics={props.metrics}
                   loading={props.loading}
                   isDark={isDarkTheme}
+                  filterDefinitions={caps.filterDefs}
                   resetDefaultFilters={getResetDefaultFiltersProp()}
                   clearFilters={getClearFiltersProp()}
                   truncateLength={props.overviewTruncateLength}
@@ -302,6 +303,7 @@ export const NetflowTrafficDrawer = React.forwardRef<NetflowTrafficDrawerHandle,
                   scopes={caps.availableScopes}
                   resetDefaultFilters={getResetDefaultFiltersProp()}
                   clearFilters={getClearFiltersProp()}
+                  isTLSTracking={caps.isTLSTracking}
                 />
               </>
             );

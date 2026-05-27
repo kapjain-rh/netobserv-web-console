@@ -69,6 +69,7 @@ export type FilterId =
   | 'dns_latency'
   | 'dns_flag_response_code'
   | 'dns_errno'
+  | 'dns_name'
   | 'time_flow_rtt'
   | 'network_events'
   | 'xlat_zone_id'
@@ -77,7 +78,11 @@ export type FilterId =
   | 'xlat_src_port'
   | 'xlat_dst_port'
   | 'ipsec_success'
-  | 'ipsec_retcode';
+  | 'ipsec_retcode'
+  | 'tcp_flags'
+  | 'tls_types'
+  | 'tls_version'
+  | 'tls_group';
 
 export interface FilterConfigDef {
   id: string;
@@ -239,4 +244,8 @@ export const doesIncludeFilter = (activeFilters: Filter[], search: FilterKey, va
     return values.every(mustMatch => found.values.some(v => v.v === String(mustMatch.v)));
   }
   return false;
+};
+
+export const addFilters = (current: Filters, newFilters: Filter[]): Filters => {
+  return { ...current, list: _.concat(current.list, newFilters) };
 };

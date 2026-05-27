@@ -1,7 +1,7 @@
 import { colSelectors, filterSelectors, netflowPage, overviewSelectors, querySumSelectors } from "@views/netflow-page"
 import { Operator, project } from "@views/netobserv"
 
-describe('(OCP-67087 Network_Observability) DNSTracking test', { tags: ['Network_Observability'] }, function () {
+describe('(OCP-67087) DNSTracking test', { tags: ['Network_Observability'] }, function () {
 
     before('any test', function () {
         cy.adminCLI(`oc adm policy add-cluster-role-to-user cluster-admin ${Cypress.env('LOGIN_USERNAME')}`)
@@ -16,7 +16,7 @@ describe('(OCP-67087 Network_Observability) DNSTracking test', { tags: ['Network
         netflowPage.visit()
     })
 
-    it("(OCP-67087, aramesha, Network_Observability) Verify DNSTracking panels and Query Summary", function () {
+    it("(OCP-67087, aramesha) Verify DNSTracking panels and Query Summary", function () {
         // verify default DNSTracking panels are visible
         cy.checkPanel(overviewSelectors.defaultDNSTrackingPanels)
         cy.checkPanelsNum(6);
@@ -63,23 +63,14 @@ describe('(OCP-67087 Network_Observability) DNSTracking test', { tags: ['Network
         cy.get(filterSelectors.filterInput).type("dst_namespace=" + project + '{enter}')
         cy.get(filterSelectors.filterInput).type("dns_name=" + dns_name + '{enter}')
 
-        // select DNS Id and DNS Error columns
-        cy.openColumnsModal().then(col => {
-            cy.get(colSelectors.columnsModal).should('be.visible')
-            cy.get('#DNSId').check()
-            cy.get('#DNSErrNo').check()
-            cy.get('#DNSName').check()
-            cy.byTestID(colSelectors.save).click()
-        })
+        // select DNS Id, DNS Error and DNS Name columns
+        cy.selectAndVerifyColumns([
+            colSelectors.dnsId,
+            colSelectors.dnsError,
+            colSelectors.dnsName
+        ])
 
-        // verify they are visible in table view
-        cy.byTestID('table-composable').should('exist').within(() => {
-            cy.get(colSelectors.dnsId).should('exist')
-            cy.get(colSelectors.dnsError).should('exist')
-            cy.get(colSelectors.dnsName).should('exist')
-        })
-
-        // Verify DNSName column for all rows
+        // Verify DNSName value for all rows
         cy.get('[data-test-td-column-id="DNSName"]').each((td) => {
             expect(td).to.contain(`${dns_name}`)
         })

@@ -6,6 +6,14 @@ import './console-utilities';
 import './selectors';
 
 /// <reference types="cypress" />
+
+/**
+ * Escapes a string for safe use in shell commands
+ * Wraps the value in single quotes and escapes any single quotes within
+ */
+function escapeShellArg(arg: string): string {
+  return `'${arg.replace(/'/g, "'\\''")}'`;
+}
 // ***********************************************
 // This example commands.ts shows you how to
 // create various custom commands and overwrite
@@ -184,7 +192,7 @@ Cypress.Commands.add('changeMetricType', (name) => {
 
   cy.get('#metricType-dropdown').click();
   cy.get('.pf-v6-c-menu__content').filter(':visible').contains(name).click();
-  
+
   // For Packets metric, we expect a full page error due to mock timeout
   if (name === 'Packets') {
     cy.get('[data-test="error-state"]').should('exist');
@@ -286,8 +294,8 @@ Cypress.Commands.add('uiLogin', (provider: string, username: string, password: s
   cy.clearAllCookies();
   cy.visit('/');
 
-  // Wait a moment for potential redirect to OAuth server
-  cy.url({ timeout: 30000 }).should('include', '/oauth/authorize').then((url) => {
+  // Wait for redirect to OAuth login page
+  cy.url({ timeout: 30000 }).should('match', /\/login|\/oauth\/authorize/).then((url) => {
     const currentUrl = new URL(url);
 
     cy.log(`Current URL: ${url}`);
@@ -337,16 +345,22 @@ Cypress.Commands.add("cliLogin", (username?: string, password?: string) => {
   const kubeconfig = Cypress.env('KUBECONFIG_PATH');
   const loginUsername = username || Cypress.env('LOGIN_USERNAME');
   const loginPassword = password || Cypress.env('LOGIN_PASSWORD');
-  cy.exec(`oc whoami --show-server=true --kubeconfig ${kubeconfig}`)
+
+  if (!kubeconfig || !loginUsername || !loginPassword) {
+    throw new Error('cliLogin requires KUBECONFIG_PATH, LOGIN_USERNAME, and LOGIN_PASSWORD');
+  }
+
+  cy.exec(`oc whoami --show-server=true --kubeconfig ${escapeShellArg(kubeconfig)}`, { log: false })
     .then(result => {
       const hostapi = result.stdout.trim();
-      cy.log(hostapi);
-      cy.exec(`oc login -u ${loginUsername} -p ${loginPassword} ${hostapi} --insecure-skip-tls-verify=true --kubeconfig ${kubeconfig}`, { failOnNonZeroExit: false })
-        .then(loginresult => {
-          cy.log(loginresult.stderr);
-          cy.log(loginresult.stdout);
-    });
-  });
+      cy.log(`Server: ${hostapi}`);
+      return cy.exec(
+        `oc login -u ${escapeShellArg(loginUsername)} -p ${escapeShellArg(loginPassword)} ${escapeShellArg(hostapi)} --insecure-skip-tls-verify=true --kubeconfig ${escapeShellArg(kubeconfig)}`,
+        { failOnNonZeroExit: true, log: false }
+      );
+    })
+    .its('code')
+    .should('eq', 0);
 });
 
 Cypress.Commands.add('retryTask', (command, expectedOutput, options?) => {

@@ -9,7 +9,7 @@ import { Config, defaultConfig } from './config';
 export interface FetchCallbacks {
   metricsRef: React.MutableRefObject<NetflowMetrics>;
   setFlows: (v: Record[]) => void;
-  setMetrics: (v: NetflowMetrics) => void;
+  setMetrics: React.Dispatch<React.SetStateAction<NetflowMetrics>>;
   setError: (err?: StructuredError | string) => void;
 }
 
@@ -28,6 +28,7 @@ const defaultCaps: ConfigCapabilities = {
   isDNSTracking: false,
   isFlowRTT: false,
   isPktDrop: false,
+  isTLSTracking: false,
   isPromOnly: true,
   availableScopes: [],
   allowedMetricTypes: [],
