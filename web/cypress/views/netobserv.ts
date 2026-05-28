@@ -20,7 +20,7 @@ type FlowCollectorParameter =
     | 'UDNMapping'
     | 'TLSTracking'
     | 'LokiDisabled'
-    | 'LokiWithoutLokiStack'
+    | 'WithLokiStack'
     | 'Conversations'
     | 'ZonesAndMultiCluster'
     | 'BytesMetrics'
@@ -51,7 +51,7 @@ const FIXTURE_PATHS = {
     udnMapping: './cypress/fixtures/flowcollector/fc_UDN.yaml',
     tlsTracking: './cypress/fixtures/flowcollector/fc_TLSTracking.yaml',
     lokiDisabled: './cypress/fixtures/flowcollector/fc_lokiDisabled.yaml',
-    lokiWithoutLokiStack: './cypress/fixtures/flowcollector/fc_lokiWithoutLokiStack.yaml',
+    withLokiStack: './cypress/fixtures/flowcollector/fc_withLokiStack.yaml',
     conversations: './cypress/fixtures/flowcollector/fc_conversations.yaml',
     subnetLabels: './cypress/fixtures/flowcollector/fc_subnetLabel.yaml',
     zonesMultiCluster: './cypress/fixtures/flowcollector/fc_zoneMulticluster.yaml',
@@ -170,8 +170,8 @@ export const Operator = {
                     case "LokiDisabled":
                         cy.deployFlowcollectorFromFixture(FIXTURE_PATHS.lokiDisabled)
                         break;
-                    case "LokiWithoutLokiStack":
-                        cy.deployFlowcollectorFromFixture(FIXTURE_PATHS.lokiWithoutLokiStack)
+                    case "WithLokiStack":
+                        cy.deployFlowcollectorFromFixture(FIXTURE_PATHS.withLokiStack)
                         break;
                     case "Conversations":
                         cy.deployFlowcollectorFromFixture(FIXTURE_PATHS.conversations)
@@ -209,10 +209,10 @@ export const Operator = {
                 // wait for all window refresh
                 cy.wait('@reload', { timeout: 120000 })
                 cy.log("Console refreshed successfully")
-                if (parameters !== "LokiDisabled" && parameters !== "LokiWithoutLokiStack") {
+                if (parameters !== "LokiDisabled" && parameters !== "WithLokiStack") {
                     cy.adminCLI(`oc wait --for=condition=Ready pod -l app=loki -n ${project} --timeout=180s`)
                 }
-                if (parameters !== "LokiWithoutLokiStack") {
+                if (parameters !== "WithLokiStack") {
                     Operator.visitFlowcollector()
                     cy.byTestID('status-text', { timeout: 120000 }).should('exist').should('contain.text', 'Ready')
 
