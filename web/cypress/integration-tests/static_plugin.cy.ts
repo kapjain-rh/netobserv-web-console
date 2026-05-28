@@ -2,7 +2,7 @@ import { netflowPage, overviewSelectors, pluginSelectors } from "@views/netflow-
 import { Operator } from "@views/netobserv"
 import {flowcollectorStatusPage, flowcollectorStatusSelectors} from "@views/flowcollector-status";
 
-describe('(OCP-84156 OCP-88744 Network_Observability) StaticPlugin test with Status Check', { tags: ['Network_Observability'] }, function () {
+describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['Network_Observability'] }, function () {
 
     before('any test', function () {
         cy.adminCLI(`oc adm policy add-cluster-role-to-user cluster-admin ${Cypress.env('LOGIN_USERNAME')}`)
