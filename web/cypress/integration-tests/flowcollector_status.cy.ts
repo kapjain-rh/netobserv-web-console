@@ -9,7 +9,7 @@ describe('FlowCollector status error scenario', { tags: ['Network_Observability'
 
         Operator.install()
         cy.checkStorageClass(this)
-        Operator.createFlowcollector("LokiWithoutLokiStack")
+        Operator.createFlowcollector("WithLokiStack")
     })
 
     it("(OCP-88744 kapjain) Verify error status when Loki enabled without LokiStack", function () {
