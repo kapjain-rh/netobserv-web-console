@@ -54,6 +54,19 @@ export const TabsContainer: React.FC<TabsContainerProps> = props => {
             eventKey={'topology'}
             title={<TabTitleText>{t('Topology')}</TabTitleText>}
           />
+          {caps.isSIPTracking && (
+            <Tab
+              className="sipCallsTabButton"
+              eventKey={'sip-calls'}
+              isAriaDisabled={!isAllowLoki}
+              tooltip={
+                !isAllowLoki ? (
+                  <Tooltip content={t('Only available when FlowCollector.loki.enable is true')} />
+                ) : undefined
+              }
+              title={<TabTitleText>{t('SIP Calls')}</TabTitleText>}
+            />
+          )}
         </Tabs>
       </FlexItem>
       {props.selectedViewId === 'table' && (

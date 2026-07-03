@@ -80,6 +80,9 @@ frontend:
     - name: DNS
       filter:
         dns_id!: '0'
+    - name: SIP
+      filter:
+        sip_call_id_hash!: '0'
   alertNamespaces:
     - netobserv
   sampling: 50
@@ -971,6 +974,42 @@ frontend:
       default: true
       width: 10
       feature: ipsec
+    - id: SIPMethod
+      group: SIP
+      name: SIP Method
+      tooltip: SIP methods observed in this call (e.g. INVITE, ACK, BYE).
+      field: SipMethod
+      filter: sip_method
+      default: true
+      width: 10
+      feature: sipTracking
+    - id: SIPCallIdHash
+      group: SIP
+      name: SIP Call-ID Hash
+      tooltip: FNV-1a hash of the SIP Call-ID header, used to group related SIP messages.
+      field: SipCallIdHash
+      filter: sip_call_id_hash
+      default: true
+      width: 10
+      feature: sipTracking
+    - id: RTPPayloadType
+      group: SIP
+      name: RTP Payload Type
+      tooltip: RTP media codec type (e.g. PCMU, PCMA, G729).
+      field: RtpPayloadType
+      filter: rtp_payload_type
+      default: false
+      width: 10
+      feature: sipTracking
+    - id: RTPSsrc
+      group: SIP
+      name: RTP SSRC
+      tooltip: RTP synchronization source identifier.
+      field: RtpSsrc
+      filter: rtp_ssrc
+      default: false
+      width: 10
+      feature: sipTracking
   filters:
     - id: cluster_name
       name: Cluster
@@ -1578,6 +1617,29 @@ frontend:
       placeholder: 'E.g: success, error'
       hint: Add IPsec status filter.
       feature: ipsec
+    - id: sip_method
+      name: SIP Method
+      component: autocomplete
+      placeholder: 'E.g: INVITE, BYE, REGISTER'
+      hint: Add SIP method filter.
+      feature: sipTracking
+    - id: sip_call_id_hash
+      name: SIP Call-ID Hash
+      component: number
+      hint: Add SIP Call-ID hash filter.
+      feature: sipTracking
+    - id: rtp_payload_type
+      name: RTP Payload Type
+      component: autocomplete
+      placeholder: 'E.g: PCMU, PCMA, G729'
+      hint: Add RTP payload type filter.
+      feature: sipTracking
+    - id: rtp_ssrc
+      name: RTP SSRC
+      component: text
+      placeholder: 'E.g: 0x12345678'
+      hint: Add RTP SSRC filter.
+      feature: sipTracking
   scopes:
     - id: cluster
       name: Cluster
@@ -1955,6 +2017,24 @@ frontend:
     - name: _RecordType
       type: string
       description: "Type of record: `flowLog` for regular flow logs, or `newConnection`, `heartbeat`, `endConnection` for conversation tracking"
+    - name: SipDetected
+      type: number
+      description: Whether SIP protocol was detected in this flow
+    - name: SipMethod
+      type: string
+      description: SIP methods observed (e.g. INVITE, ACK, BYE, RESPONSE)
+    - name: SipCallIdHash
+      type: number
+      description: FNV-1a hash of the SIP Call-ID header
+    - name: RtpDetected
+      type: number
+      description: Whether RTP protocol was detected in this flow
+    - name: RtpPayloadType
+      type: string
+      description: RTP media codec type (e.g. PCMU, PCMA, G729)
+    - name: RtpSsrc
+      type: string
+      description: RTP synchronization source identifier
     - name: _HashId
       type: string
       description: In conversation tracking, the conversation identifier

@@ -24,6 +24,7 @@ export interface ConfigCapabilities {
   isFlowRTT: boolean;
   isPktDrop: boolean;
   isTLSTracking: boolean;
+  isSIPTracking: boolean;
   isPromOnly: boolean;
   availableScopes: ScopeConfigDef[];
   allowedMetricTypes: MetricType[];
@@ -79,7 +80,7 @@ export function useConfigCapabilities(params: {
   const allowLoki = React.useMemo(() => config.dataSources.some(ds => ds === 'loki'), [config.dataSources]);
 
   const allowProm = React.useMemo(
-    () => config.dataSources.some(ds => ds === 'prom') && selectedViewId !== 'table',
+    () => config.dataSources.some(ds => ds === 'prom') && selectedViewId !== 'table' && selectedViewId !== 'sip-calls',
     [config.dataSources, selectedViewId]
   );
 
@@ -97,6 +98,8 @@ export function useConfigCapabilities(params: {
   const isPktDrop = React.useMemo(() => config.features.includes('pktDrop'), [config.features]);
 
   const isTLSTracking = React.useMemo(() => config.features.includes('tlsTracking'), [config.features]);
+
+  const isSIPTracking = React.useMemo(() => config.features.includes('sipTracking'), [config.features]);
 
   const isPromOnly = React.useMemo(() => !allowLoki || dataSource === 'prom', [allowLoki, dataSource]);
 
@@ -206,7 +209,7 @@ export function useConfigCapabilities(params: {
       query.rateInterval = `${info.rateIntervalSeconds}s`;
       query.step = `${info.stepSeconds}s`;
     }
-    if (selectedViewId === 'table') {
+    if (selectedViewId === 'table' || selectedViewId === 'sip-calls') {
       query.type = 'Flows';
     } else {
       query.aggregateBy = metricScope;
@@ -249,6 +252,7 @@ export function useConfigCapabilities(params: {
     isFlowRTT,
     isPktDrop,
     isTLSTracking,
+    isSIPTracking,
     isPromOnly,
     availableScopes,
     allowedMetricTypes,

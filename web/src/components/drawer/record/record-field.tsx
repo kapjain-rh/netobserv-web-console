@@ -8,6 +8,7 @@ import { Column, ColumnsId, getFullColumnName, isKubeObj, KubeObj } from '../../
 import { dateFormatter, getFormattedDate, timeMSFormatter, utcDateTimeFormatter } from '../../../utils/datetime';
 import { dnsCodesNames, dnsErrorsValues, getDNSErrorDescription, getDNSRcodeDescription } from '../../../utils/dns';
 import { getDSCPDocUrl, getDSCPServiceClassDescription, getDSCPServiceClassName } from '../../../utils/dscp';
+import { getRtpPayloadDescription, getSipMethodDescription } from '../../../utils/sip';
 import { formatDurationAboveMillisecond, formatDurationAboveNanosecond } from '../../../utils/duration';
 import { getICMPCode, getICMPDocUrl, getICMPType, ICMPAllTypesValues, isValidICMPProto } from '../../../utils/icmp';
 import { DropCausesNames, getDropCauseDescription, getDropCauseDocUrl } from '../../../utils/pkt-drop';
@@ -610,6 +611,33 @@ export const RecordField: React.FC<RecordFieldProps> = ({
           child = kubeObjContent(id, 'ClusterUserDefinedNetwork', undefined);
         }
         return singleContainer(child);
+      }
+      case ColumnsId.sipmethod: {
+        if (typeof value === 'string' && value.length) {
+          const methods = value.split(',').map(m => m.trim());
+          const tooltip = methods.map(m => `${m}: ${getSipMethodDescription(m)}`).join(', ');
+          return singleContainer(simpleTextWithTooltip(detailed ? tooltip : value));
+        }
+        return emptyText();
+      }
+      case ColumnsId.sipcallidhash: {
+        if (typeof value === 'number' && value !== 0) {
+          return singleContainer(simpleTextWithTooltip(`0x${value.toString(16).toUpperCase().padStart(8, '0')}`));
+        }
+        return emptyText();
+      }
+      case ColumnsId.rtppayloadtype: {
+        if (typeof value === 'string' && value.length) {
+          return singleContainer(
+            simpleTextWithTooltip(detailed ? `${value}: ${getRtpPayloadDescription(value)}` : value)
+          );
+        }
+        return emptyText();
+      }
+      case ColumnsId.rtpssrc: {
+        return singleContainer(
+          typeof value === 'string' && value.length ? simpleTextWithTooltip(value) : emptyText()
+        );
       }
       default:
         if (value === undefined) {

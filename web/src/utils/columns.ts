@@ -86,7 +86,11 @@ export enum ColumnsId {
   packetsab = 'Packets_AB',
   packetsba = 'Packets_BA',
   isfirst = 'IsFirst',
-  numflow = 'numFlowLogs'
+  numflow = 'numFlowLogs',
+  sipmethod = 'SIPMethod',
+  sipcallidhash = 'SIPCallIdHash',
+  rtppayloadtype = 'RTPPayloadType',
+  rtpssrc = 'RTPSsrc'
 }
 
 export interface ColumnConfigDef {

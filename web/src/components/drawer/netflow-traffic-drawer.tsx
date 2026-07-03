@@ -23,6 +23,7 @@ import SummaryPanel from '../query-summary/summary-panel';
 import { SearchEvent, SearchHandle } from '../search/search';
 import { NetflowOverview, NetflowOverviewHandle } from '../tabs/netflow-overview/netflow-overview';
 import { NetflowTable, NetflowTableHandle } from '../tabs/netflow-table/netflow-table';
+import { SipCallsTab } from '../tabs/sip-calls-tab';
 import { NetflowTopology, NetflowTopologyHandle } from '../tabs/netflow-topology/netflow-topology';
 import ElementPanel from './element/element-panel';
 import './netflow-traffic-drawer.css';
@@ -217,6 +218,7 @@ export const NetflowTrafficDrawer = React.forwardRef<NetflowTrafficDrawerHandle,
         err &&
         (props.currentState.includes('configLoadError') ||
           props.selectedViewId === 'table' ||
+          props.selectedViewId === 'sip-calls' ||
           (props.selectedViewId === 'topology' && !hasTopologyMetrics));
 
       if (showFullError) {
@@ -306,6 +308,15 @@ export const NetflowTrafficDrawer = React.forwardRef<NetflowTrafficDrawerHandle,
                   isTLSTracking={caps.isTLSTracking}
                 />
               </>
+            );
+            break;
+          case 'sip-calls':
+            content = (
+              <SipCallsTab
+                flows={props.flows}
+                loading={props.loading}
+                isDark={isDarkTheme}
+              />
             );
             break;
           default:

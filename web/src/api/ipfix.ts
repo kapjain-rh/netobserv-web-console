@@ -97,6 +97,12 @@ export interface Flow {
   TLSTypes?: string[];
   TLSVersion?: string;
   TLSGroup?: string;
+  SipDetected?: number;
+  SipMethod?: string;
+  SipCallIdHash?: number;
+  RtpDetected?: number;
+  RtpPayloadType?: string;
+  RtpSsrc?: string;
 }
 
 export enum FlowDirection {

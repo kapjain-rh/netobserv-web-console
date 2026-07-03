@@ -85,7 +85,7 @@ import ChipsPopover from './toolbar/filters/chips-popover';
 import HistogramToolbar from './toolbar/histogram-toolbar';
 import ViewOptionsToolbar from './toolbar/view-options-toolbar';
 
-export type ViewId = 'overview' | 'table' | 'topology';
+export type ViewId = 'overview' | 'table' | 'topology' | 'sip-calls';
 export type Size = 's' | 'm' | 'l';
 
 export interface NetflowTrafficProps {
