@@ -130,6 +130,22 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
             .click()
         cy.url({ timeout: 30000 }).should('include', '/netflow-traffic')
     })
+    it("(OCP-88744, kapjain) Verify FlowCollector status via search and cluster columns", function () {
+        // Search for FlowCollector via search page
+        searchPage.navToSearchPage()
+        searchPage.chooseResourceType('FlowCollector')
+        cy.byTestID('data-view-table', { timeout: 30000 }).should('exist')
+        cy.byTestID('data-view-cell-cluster-name').should('exist')
+
+        // Verify additionalPrinterColumn headers
+        cy.byTestID('additional-printer-column-header-Agent').should('exist')
+        cy.byTestID('additional-printer-column-header-Processor').should('exist')
+        cy.byTestID('additional-printer-column-header-Web Console').should('exist')
+        cy.byTestID('additional-printer-column-header-Status').should('exist')
+
+        // Verify status column shows Ready
+        cy.byTestID('additional-printer-column-data-Status').should('contain.text', 'Ready')
+    })
     it("(OCP-88744, kapjain) Verify delete button exists and delete modal cancel works", function () {
         flowcollectorStatusPage.visit()
 
@@ -169,24 +185,6 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
         cy.get(flowcollectorStatusSelectors.createFlowCollectorBtn)
             .should('contain.text', 'Create FlowCollector')
     })
-
-
-        it("(OCP-88744, kapjain) Verify FlowCollector status via search and cluster columns", function () {
-            // Search for FlowCollector via search page
-            searchPage.navToSearchPage()
-            searchPage.chooseResourceType('FlowCollector')
-            cy.byTestID('data-view-table', { timeout: 30000 }).should('exist')
-            cy.byTestID('data-view-cell-cluster-name').should('exist')
-
-            // Verify additionalPrinterColumn headers
-            cy.byTestID('additional-printer-column-header-Agent').should('exist')
-            cy.byTestID('additional-printer-column-header-Processor').should('exist')
-            cy.byTestID('additional-printer-column-header-Plugin').should('exist')
-            cy.byTestID('additional-printer-column-header-Status').should('exist')
-
-            // Verify status column shows Ready
-            cy.byTestID('additional-printer-column-data-Status').should('contain.text', 'Ready')
-        })
 
     after("after all tests", function () {
         Operator.deleteFlowCollector()
