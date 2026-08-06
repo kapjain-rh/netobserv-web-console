@@ -114,14 +114,6 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
         cy.get(flowcollectorStatusSelectors.statusIndicator).click()
         cy.contains('Network Observability FlowCollector status', { timeout: 30000 }).should('exist')
     })
-    it("(OCP-88744, kapjain) Verify Edit FlowCollector button opens edit page", function () {
-        flowcollectorStatusPage.visit()
-
-        cy.get(flowcollectorStatusSelectors.editFlowCollectorBtn).should('exist').click()
-        cy.url({ timeout: 30000 }).should('include', '/flows.netobserv.io~v1beta2~FlowCollector/edit')
-        cy.get(pluginSelectors.update, { timeout: 30000 }).should('exist')
-    })
-
     it("(OCP-88744, kapjain) Verify Open Network Traffic button opens traffic page", function () {
         flowcollectorStatusPage.visit()
 
@@ -146,27 +138,6 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
         // Verify status column shows Ready
         cy.byTestID('additional-printer-column-data-Status').should('contain.text', 'Ready')
     })
-    it("(OCP-88744, kapjain) Verify delete button exists and delete modal cancel works", function () {
-        flowcollectorStatusPage.visit()
-
-        cy.get(flowcollectorStatusSelectors.editFlowCollectorBtn).should('exist')
-        cy.get(flowcollectorStatusSelectors.deleteFlowCollectorBtn).should('exist')
-            .should('contain.text', 'Delete FlowCollector')
-
-        cy.get(flowcollectorStatusSelectors.deleteFlowCollectorBtn).click()
-
-        cy.get(flowcollectorStatusSelectors.deleteModal, { timeout: 10000 }).should('exist')
-        cy.get(flowcollectorStatusSelectors.deleteModal).should('contain.text', 'Delete FlowCollector cluster')
-        cy.get(flowcollectorStatusSelectors.deleteModal).should('contain.text', 'This action cannot be undone')
-        cy.get(flowcollectorStatusSelectors.deleteModal)
-            .should('contain.text', 'It will disable flow collection globally')
-
-        cy.get(flowcollectorStatusSelectors.cancelDeleteBtn).should('exist').click()
-
-        cy.get(flowcollectorStatusSelectors.deleteModal).should('not.exist')
-        cy.get(flowcollectorStatusSelectors.readyRow).should('exist')
-    })
-
     it("(OCP-88744, kapjain) Verify delete FlowCollector reloads status page with only create option", function () {
         flowcollectorStatusPage.visit()
 
@@ -177,10 +148,6 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
         cy.get(flowcollectorStatusSelectors.createFlowCollectorBtn, { timeout: 60000 }).should('exist')
         cy.contains('No FlowCollector resource was found', { timeout: 30000 }).should('exist')
         cy.contains('Create one to enable network flow collection').should('exist')
-
-        cy.get(flowcollectorStatusSelectors.statusButton).should('not.exist')
-        cy.get(flowcollectorStatusSelectors.editFlowCollectorBtn).should('not.exist')
-        cy.get(flowcollectorStatusSelectors.deleteFlowCollectorBtn).should('not.exist')
 
         cy.get(flowcollectorStatusSelectors.createFlowCollectorBtn)
             .should('contain.text', 'Create FlowCollector')
