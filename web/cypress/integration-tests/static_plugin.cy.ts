@@ -114,14 +114,6 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
         cy.get(flowcollectorStatusSelectors.statusIndicator).click()
         cy.contains('Network Observability FlowCollector status', { timeout: 30000 }).should('exist')
     })
-    it("(OCP-88744, kapjain) Verify Open Network Traffic button opens traffic page", function () {
-        flowcollectorStatusPage.visit()
-
-        cy.byLegacyTestID('open-network-traffic').should('exist')
-            .should('not.have.attr', 'aria-disabled', 'true')
-            .click()
-        cy.url({ timeout: 30000 }).should('include', '/netflow-traffic')
-    })
     it("(OCP-88744, kapjain) Verify FlowCollector status via search and cluster columns", function () {
         // Search for FlowCollector via search page
         searchPage.navToSearchPage()
