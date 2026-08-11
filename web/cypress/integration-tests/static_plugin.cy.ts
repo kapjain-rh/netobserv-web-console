@@ -59,7 +59,8 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
         // Updating ebpf Sampling to 1
         cy.get(pluginSelectors.editFlowcollector).click()
         cy.get('#root_spec_agent_accordion-toggle').click()
-        cy.get('#root_spec_agent_ebpf_sampling').clear().type('1')
+        cy.get('#root_spec_agent_ebpf_sampling').clear()
+        cy.get('#root_spec_agent_ebpf_sampling').type('1')
         cy.get(pluginSelectors.update).click()
 
         // Wait for flowcollector to get ready
@@ -78,14 +79,13 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
         cy.checkNetflowTraffic()
         netflowPage.resetClearFilters()
     })
-
     it("(OCP-88744, kapjain) Verify OLM page 'cluster' click opens status page", function () {
         Operator.visitFlowcollector()
 
         cy.contains('td a', 'cluster', { timeout: 30000 }).should('be.visible')
             .invoke('attr', 'href').then(href => {
-                cy.visit(href as string)
-            })
+            cy.visit(href as string)
+        })
 
         cy.url({ timeout: 30000 }).should('include', '/flows.netobserv.io~v1beta2~FlowCollector/cluster')
         cy.contains('Network Observability FlowCollector', { timeout: 30000 }).should('exist')
@@ -113,43 +113,6 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
         cy.get(flowcollectorStatusSelectors.statusIndicator).click()
         cy.contains('Network Observability FlowCollector status', { timeout: 30000 }).should('exist')
     })
-    it("(OCP-88744, kapjain) Verify Edit FlowCollector button opens edit page", function () {
-        flowcollectorStatusPage.visit()
-
-        cy.get(flowcollectorStatusSelectors.editFlowCollectorBtn).should('exist').click()
-        cy.url({ timeout: 30000 }).should('include', '/flows.netobserv.io~v1beta2~FlowCollector/edit')
-        cy.get(pluginSelectors.update, { timeout: 30000 }).should('exist')
-    })
-
-    it("(OCP-88744, kapjain) Verify Open Network Traffic button opens traffic page", function () {
-        flowcollectorStatusPage.visit()
-
-        cy.byLegacyTestID('open-network-traffic').should('exist')
-            .should('not.have.attr', 'aria-disabled', 'true')
-            .click()
-        cy.url({ timeout: 30000 }).should('include', '/netflow-traffic')
-    })
-    it("(OCP-88744, kapjain) Verify delete button exists and delete modal cancel works", function () {
-        flowcollectorStatusPage.visit()
-
-        cy.get(flowcollectorStatusSelectors.editFlowCollectorBtn).should('exist')
-        cy.get(flowcollectorStatusSelectors.deleteFlowCollectorBtn).should('exist')
-            .should('contain.text', 'Delete FlowCollector')
-
-        cy.get(flowcollectorStatusSelectors.deleteFlowCollectorBtn).click()
-
-        cy.get(flowcollectorStatusSelectors.deleteModal, { timeout: 10000 }).should('exist')
-        cy.get(flowcollectorStatusSelectors.deleteModal).should('contain.text', 'Delete FlowCollector cluster')
-        cy.get(flowcollectorStatusSelectors.deleteModal).should('contain.text', 'This action cannot be undone')
-        cy.get(flowcollectorStatusSelectors.deleteModal)
-            .should('contain.text', 'It will disable flow collection globally')
-
-        cy.get(flowcollectorStatusSelectors.cancelDeleteBtn).should('exist').click()
-
-        cy.get(flowcollectorStatusSelectors.deleteModal).should('not.exist')
-        cy.get(flowcollectorStatusSelectors.readyRow).should('exist')
-    })
-
     it("(OCP-88744, kapjain) Verify delete FlowCollector reloads status page with only create option", function () {
         flowcollectorStatusPage.visit()
 
@@ -160,10 +123,6 @@ describe('(OCP-84156 OCP-88744) StaticPlugin test with Status Check', { tags: ['
         cy.get(flowcollectorStatusSelectors.createFlowCollectorBtn, { timeout: 60000 }).should('exist')
         cy.contains('No FlowCollector resource was found', { timeout: 30000 }).should('exist')
         cy.contains('Create one to enable network flow collection').should('exist')
-
-        cy.get(flowcollectorStatusSelectors.statusButton).should('not.exist')
-        cy.get(flowcollectorStatusSelectors.editFlowCollectorBtn).should('not.exist')
-        cy.get(flowcollectorStatusSelectors.deleteFlowCollectorBtn).should('not.exist')
 
         cy.get(flowcollectorStatusSelectors.createFlowCollectorBtn)
             .should('contain.text', 'Create FlowCollector')

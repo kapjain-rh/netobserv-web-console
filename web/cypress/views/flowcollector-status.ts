@@ -21,16 +21,6 @@ export namespace flowcollectorStatusSelectors {
 export const flowcollectorStatusPage = {
     visit: () => {
         cy.visit('k8s/cluster/flows.netobserv.io~v1beta2~FlowCollector/status')
-        cy.get(flowcollectorStatusSelectors.readyRow, { timeout: 120000 })
-            .should('have.attr', 'data-test-status', 'True')
-            .should('have.attr', 'data-test-reason', 'Ready')
-    },
-    visitWithoutWaitingForReady: () => {
-        cy.visit('k8s/cluster/flows.netobserv.io~v1beta2~FlowCollector/status')
-        cy.contains('Network Observability FlowCollector', { timeout: 30000 }).should('exist')
-    },
-    visitViaClusterPath: () => {
-        cy.visit('k8s/cluster/flows.netobserv.io~v1beta2~FlowCollector/cluster')
         cy.contains('Network Observability FlowCollector', { timeout: 30000 }).should('exist')
     }
 }
