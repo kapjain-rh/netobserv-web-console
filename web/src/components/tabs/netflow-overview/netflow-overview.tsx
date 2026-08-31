@@ -1483,9 +1483,7 @@ export const NetflowOverview = React.forwardRef<NetflowOverviewHandle, NetflowOv
                   width: containerSize.width / 5 - containerPadding,
                   marginLeft: (containerSize.width * 4) / 5 - containerPadding
                 }
-              : {
-                  marginLeft: containerSize.width * 0.075
-                }
+              : undefined
           }
         >
           <Flex
@@ -1514,11 +1512,8 @@ export const NetflowOverview = React.forwardRef<NetflowOverviewHandle, NetflowOv
 
   return (
     <div
+      className="overview-root"
       style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        overflowY: 'auto',
         padding: `${containerPadding}px 0 ${containerPadding}px ${containerPadding}px`
       }}
       ref={containerRef}
