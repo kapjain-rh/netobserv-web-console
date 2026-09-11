@@ -71,20 +71,44 @@ Cypress.Commands.add('clickNavLink', (path: string[]) => {
 });
 
 Cypress.Commands.add('dismissWelcomeModal', () => {
-  cy.get('body').then(($body) => {
-    const modal = $body.find('[role="dialog"]');
-    if (modal.length === 0) {
-      return;
-    }
+  const tryCloseModal = (retries = 5) => {
+    cy.window().then((win) => {
+      const $modals = Cypress.$('[role="dialog"]');
 
-    const closeBtn = modal.find('button[aria-label="Close"]');
-    if (closeBtn.length > 0) {
-      cy.get('[role="dialog"] button[aria-label="Close"]', { timeout: 5000 }).click({ force: true });
-      // Wait for modal to be removed after clicking close
-      cy.get('[role="dialog"]', { timeout: 5000 }).should('not.exist');
-    }
-    // If close button doesn't exist, just continue without trying to close
-  });
+      // Find Welcome modal
+      let foundWelcome = false;
+      for (let i = 0; i < $modals.length; i++) {
+        const $modal = Cypress.$($modals[i]);
+        const ariaLabel = $modal.attr('aria-label') || '';
+        const isVisible = $modal.is(':visible');
+
+        if (isVisible && ariaLabel.toLowerCase().includes('welcome')) {
+          foundWelcome = true;
+
+          // Find close button
+          let $closeBtn = $modal.find('button[aria-label="Close"]');
+          if ($closeBtn.length === 0) {
+            $closeBtn = $modal.find('.pf-c-modal-box__close');
+          }
+
+          if ($closeBtn.length > 0) {
+            cy.wrap($closeBtn.first()).click({ force: true });
+            cy.wait(500);
+            // Check if another Welcome modal appears
+            tryCloseModal();
+          }
+          break;
+        }
+      }
+
+      if (!foundWelcome && retries > 0) {
+        cy.wait(500);
+        tryCloseModal(retries - 1);
+      }
+    });
+  };
+
+  tryCloseModal();
 });
 
 export const checkErrors = () =>
